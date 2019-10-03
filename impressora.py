@@ -9,7 +9,6 @@ COUNT_PER_THREAD = BUFFER_SIZE/THREADS_AMOUNT
 count = 0
 
 class Printer(Thread):
-
   turn = 0
   want_status = [False, False]
 
@@ -19,36 +18,35 @@ class Printer(Thread):
     self.buffer = queue.Queue(BUFFER_SIZE) 
     Thread.__init__(self)
 
-  def connect_to_server(self):
+  def handle_server(self, data):
+    if data == b'print':
+      if count == 10:
+        return
+      else:
+        self.pre_protocol()
+        self.critical_section(b'print')
+        self.post_protocol()
+        print('Numero de pedidos no buffer {}: '.format(count))
+      while True:
+        ans = self.print_document()
+        if ans == b'done':
+          self.pre_protocol()
+          self.critical_section(b'done')
+          self.post_protocol()
+          break
+      print('Numero de pedidos no buffer {}: '.format(count))
+      if not data:
+          return
 
-    with socket.socket() as s: # por default ja abre socket AF_INET e TCP (SOCK_STREAM)
+  def run(self):
+    with socket.socket() as s:
         s.connect(('', 50007))
         while True:
             io_list = [sys.stdin, s]
-            ready_to_read,ready_to_write,in_error = select.select(io_list , [], [])
-            
-            if s in ready_to_read: 
+            ready_to_read,ready_to_write,in_error = select.select(io_list , [], [])   
+            if s in ready_to_read:
                 data = s.recv(1024)
-                if data == b'print':
-                  self.pre_protocol()
-                  self.critical_section(b'print')
-                  self.post_protocol()
-                  while True:
-                    ans = self.print_document()
-                    if ans == b'done':
-                      self.pre_protocol()
-                      self.critical_section(b'done')
-                      self.post_protocol()
-                      break
-                  print('Counter {}: '.format(count))
-                  print(self.buffer.qsize())
-
-                if not data: 
-                    break
-            else: # enviar msg
-                msg = sys.stdin.readline() 
-                s.send(msg.encode())  
-                sys.stdout.flush()
+            Thread(target=self.handle_server, args=(data, )).start()
 
   def pre_protocol(self):
     Printer.want_status[self.this] = True
@@ -63,10 +61,8 @@ class Printer(Thread):
     global count
     if msg == b'print':
       count += 1
-      print('Incremento')
       self.buffer.put(1)
     if msg == b'done':
-      print('Decremento')
       count -= 1
       self.buffer.get()
 
@@ -75,7 +71,7 @@ class Printer(Thread):
     Printer.want_status[self.this] = False
 
   def print_document(self):
-    sleep(5)
+    sleep(10)
     return b'done'
 
 threads = []
@@ -84,12 +80,11 @@ def main():
   create_threads()
   start_threads()
   join_threads()
-  output_result()
 
 def create_threads():
   for id in range(THREADS_AMOUNT):
     new_thread = Printer(id)
-    new_thread.connect_to_server()
+    new_thread.run()
     threads.append(new_thread)
 
 def start_threads():
@@ -99,9 +94,6 @@ def start_threads():
 def join_threads():
   for thread in threads:
     thread.join()
-
-def output_result():
-  print('Counter value: {}'.format(count))
 
 if __name__ == "__main__":
     main()
