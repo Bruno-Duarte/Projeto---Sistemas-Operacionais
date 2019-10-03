@@ -4,7 +4,6 @@ from threading import Thread
 
 THREADS_AMOUNT = 2
 BUFFER_SIZE = 10
-COUNT_PER_THREAD = BUFFER_SIZE/THREADS_AMOUNT
 
 count = 0
 
