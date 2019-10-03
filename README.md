@@ -1,1 +1,1 @@
-# Projeto para a Simulação de Espera Ocupada para a cadeira de Sistemas Operacionais (2019)
+# Projeto para a Simulação de Espera Ocupada para a Disciplina de Sistemas Operacionais (UECE/2019)
