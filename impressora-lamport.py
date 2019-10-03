@@ -3,7 +3,7 @@ from time import sleep
 from threading import Thread
 from datetime import datetime
 
-THREADS_AMOUNT = 2
+THREADS_AMOUNT = 10
 BUFFER_SIZE = 10
 
 count = 0
