@@ -35,7 +35,6 @@ class Printer(Thread):
 					self.post_protocol()
 					break
 			print('Numero de pedidos no buffer {}: '.format(count))
-
 			if not data: 
 				return
 
@@ -47,9 +46,7 @@ class Printer(Thread):
 				ready_to_read,ready_to_write,in_error = select.select(io_list , [], [])   
 				if s in ready_to_read: 
 					data = s.recv(1024)
-
 				Thread(target=self.handle_server, args=(data, )).start()
-
 
 	def pre_protocol(self):
 		Printer.want_status[self.this] = True
