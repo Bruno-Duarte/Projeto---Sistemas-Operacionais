@@ -16,12 +16,12 @@ class Client(object):
 		    while True:
 		        io_list = [sys.stdin, s]
 		        ready_to_read, ready_to_write, in_error = select.select(io_list , [], [])   
-		        if s in ready_to_read: # caso haja dados a chegar
+		        if s in ready_to_read:
 		            data = s.recv(1024)
 		            if not data:
 		                break
 		            print(data.decode())
-		        else: # enviar msg
+		        else:
 		        	msg = sys.stdin.readline()
 		        	try:
 		        		msg = int(msg)
