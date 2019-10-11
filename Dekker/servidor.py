@@ -16,7 +16,6 @@ class Server(object):
 		try:
 			while True:
 				data = client_conn.recv(1024)
-
 				if not data:
 					print(client_conn.getpeername(), 'disconectou-se')
 					break
@@ -41,8 +40,8 @@ class Server(object):
 		    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)                          
 		    s.bind(('', 50007))
 		    s.listen(2)
-		    while True: # aceitar todas as conexoes que possam vir
-		        connection, address = s.accept() # a espera de conexao
+		    while True: 
+		        connection, address = s.accept()
 		        with clients_lock:
 		        	clients.append(connection)
 		        print('Server conectado por', address)
