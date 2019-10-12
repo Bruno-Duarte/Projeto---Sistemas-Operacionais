@@ -24,11 +24,7 @@ class Server(object):
 					count += 1
 					print(client_conn.getpeername(), end='')
 					print(' esta pedindo para imprimir')
-					if count <= 2:
-						clients[0].send(b'print')
-					else:
-						client_conn.send(b'Impressora ocupada!')
-						count -= 3
+					clients[0].send(b'print')
 				else:
 					print('Nao reconhecido')
 		except Exception as erro:
