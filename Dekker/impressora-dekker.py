@@ -71,7 +71,7 @@ def main():
 			ready_to_read, ready_to_write, in_error = select.select(io_list , [], [])   
 			if s in ready_to_read: 
 				data = s.recv(1024)
-				thread = threading.Thread(targe=printer.handle_server, args=(data, ))
+				thread = threading.Thread(target=printer.handle_server, args=(data, ))
 				if count <= BUFFER_SIZE:
 					printer.buffer.put(thread)
 				else:
