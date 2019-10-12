@@ -72,7 +72,7 @@ def main():
 			if s in ready_to_read: 
 				data = s.recv(1024)
 				thread = threading.Thread(targe=printer.handle_server, args=(data, ))
-				if count <= 10:
+				if count <= BUFFER_SIZE:
 					printer.buffer.put(thread)
 				else:
 					print('Servidor ocupado')
