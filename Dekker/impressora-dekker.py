@@ -2,7 +2,7 @@ import socket, select, sys, threading, queue
 from time import sleep
 from random import randint as rand
 
-BUFFER_SIZE = 10
+BUFFER_SIZE = 2
 
 lock = threading.Lock()
 count = 0
