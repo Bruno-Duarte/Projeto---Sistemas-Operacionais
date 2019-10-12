@@ -75,7 +75,7 @@ def main():
 				if count <= BUFFER_SIZE:
 					printer.buffer.put(thread)
 				else:
-					print('Servidor ocupado')
+					print('Impressora ocupada')
 				threading.Thread(target=printer.run, args=(printer.buffer, )).start()
 
 
