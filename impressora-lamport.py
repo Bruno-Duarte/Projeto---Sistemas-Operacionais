@@ -43,7 +43,7 @@ class Printer(object):
 		Printer.ticket[i] = 0
 
 	def handle_server(self, data):
-		if not data: # ex: caso o servidor se desligue, ou conexao perdida
+		if not data: 
 			return
 		elif data == b'print':
 			self.pre_protocol(0)
