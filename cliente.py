@@ -5,16 +5,17 @@ def menu():
 	print('2. Sair\n')
 
 class Client(object):
+
 	def __init__(self, name):
 		self.name = name
 
 	def connect(self):
-		with socket.socket() as s:
+		with socket.socket() as s: 
 		    s.connect(('', 50007))
 		    menu()
 		    while True:
 		        io_list = [sys.stdin, s]
-		        ready_to_read,ready_to_write,in_error = select.select(io_list , [], [])
+		        ready_to_read, ready_to_write, in_error = select.select(io_list , [], [])   
 		        if s in ready_to_read:
 		            data = s.recv(1024)
 		            if not data:
@@ -27,8 +28,10 @@ class Client(object):
 		        		if msg == 1:
 			        		s.send('request\n'.encode())
 			        		sys.stdout.flush()
-			        	else:
+			        	elif msg == 2:
 			        		break
+			        	else:
+			        		print('Comando inválido')
 		        	except Exception as erro:
 		        		print(erro)
 
