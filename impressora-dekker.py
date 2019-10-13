@@ -1,98 +1,84 @@
-import socket, select, sys, queue
+import socket, select, sys, threading, queue
 from time import sleep
-from threading import Thread
+from random import randint as rand
 
-THREADS_AMOUNT = 2
-BUFFER_SIZE = 10
+BUFFER_SIZE = 2
 
+lock = threading.Lock()
 count = 0
 
-class Printer(Thread):
-	turn = 0
+class Printer(object):
+
 	want_status = [False, False]
+	turn = 1
 
-	def __init__(self, id):
-		self.this = id
-		self.other = (id + 1) % 2
-		self.buffer = queue.Queue(BUFFER_SIZE) 
-		Thread.__init__(self)
-
-	def handle_server(self, data):
-		if data == b'print':
-			if count == 10:
-				return
-			else:
-				self.pre_protocol()
-				self.critical_section(b'print')
-				self.post_protocol()
-				print('Numero de pedidos no buffer {}: '.format(count))
-			while True:
-				ans = self.print_document()
-				if ans == b'done':
-					self.pre_protocol()
-					self.critical_section(b'done')
-					self.post_protocol()
-					break
-			print('Numero de pedidos no buffer {}: '.format(count))
-			if not data: 
-				return
-
-	def run(self):
-		with socket.socket() as s: 
-			s.connect(('', 50007))
-			while True:
-				io_list = [sys.stdin, s]
-				ready_to_read,ready_to_write,in_error = select.select(io_list , [], [])   
-				if s in ready_to_read: 
-					data = s.recv(1024)
-				Thread(target=self.handle_server, args=(data, )).start()
+	def __init__(self, name):
+		self.name = name
+		self.buffer = queue.Queue(BUFFER_SIZE)
 
 	def pre_protocol(self):
-		Printer.want_status[self.this] = True
-		while Printer.want_status[self.other]:
-			if Printer.turn == self.other:
-				Printer.want_status[self.this] = False
-				while Printer.want_status[self.other]:
+		Printer.want_status[0] = True
+		while Printer.want_status[1]:
+			if Printer.turn == 1:
+				Printer.want_status[0] = False
+				while Printer.want_status[1]:
 					pass
-				Printer.want_status[self.this] = True
-
-	def critical_section(self, msg):
+				Printer.want_status[0] = True
+	    
+	def critical_section(self):
 		global count
-		if msg == b'print':
-			count += 1
-			self.buffer.put(1)
-		if msg == b'done':
-			count -= 1
-			self.buffer.get()
+		count += 1
+		self.print_document()
+		count -= 1
 
 	def post_protocol(self):
-		Printer.turn = self.other
-		Printer.want_status[self.this] = False
+		Printer.turn = 1
+		Printer.want_status[0] = False
+
+	def handle_server(self, data):
+		if not data:
+			return
+		elif data == b'print':
+			self.pre_protocol()
+			self.critical_section()
+			self.post_protocol()
 
 	def print_document(self):
-		sleep(10)
-		return b'done'
+		print('{} está esperando...'.format(threading.get_ident()))
+		t = rand(2, 10)
+		lock.acquire()
+		sleep(t)
+		lock.release()
+		print('{} imprimiu em {}s'.format(threading.get_ident(), t))
 
-threads = []
+	def run(self, buffer):
+		while True:
+			item = buffer.get()
+			if item is None:
+				break
+			item.start()
+			item.join()
+			buffer.task_done()
+
 
 def main():
-	create_threads()
-	start_threads()
-	join_threads()
+	global count
+	printer = Printer('Impressora')
+	with socket.socket() as s:
+		s.connect(('', 50007))
+		while True:
+			io_list = [sys.stdin, s]
+			ready_to_read, ready_to_write, in_error = select.select(io_list , [], [])   
+			if s in ready_to_read: 
+				data = s.recv(1024)
+				thread = threading.Thread(target=printer.handle_server, args=(data, ))
+				if count <= BUFFER_SIZE - 1:
+					printer.buffer.put(thread)
+				else:
+					print('Impressora ocupada.')
+				threading.Thread(target=printer.run, args=(printer.buffer, )).start()
 
-def create_threads():
-	for id in range(THREADS_AMOUNT):
-		new_thread = Printer(id)
-		new_thread.run()
-		threads.append(new_thread)
 
-def start_threads():
-	for thread in threads:
-		thread.start()
-
-def join_threads():
-	for thread in threads:
-		thread.join()
-
-if __name__ == "__main__":
+if __name__ == '__main__':
 	main()
+          
