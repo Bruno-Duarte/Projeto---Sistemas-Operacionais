@@ -81,13 +81,11 @@ def main():
 		name = 'D' + str(i)
 		doc = Printer(name)
 		docs.append(doc)
-
 	with socket.socket() as s: 
 		s.connect(('', 50007))
 		while True:
 			io_list = [sys.stdin, s]
 			ready_to_read, ready_to_write, in_error = select.select(io_list , [], [])   
-
 			if s in ready_to_read: 
 				data = s.recv(1024)
 				id = univ_count % 10
