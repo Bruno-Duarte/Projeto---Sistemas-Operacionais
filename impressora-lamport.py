@@ -11,8 +11,8 @@ univ_count = 0
 buffer = queue.Queue(BUFFER_SIZE)
 
 taking = [
-	False, False, False, False, False, 
-	False, False, False, False, False
+      False, False, False, False, False, 
+      False, False, False, False, False
 ]
 
 tickets = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -39,7 +39,7 @@ class Printer(object):
 			while tickets[j] != 0 and (tickets[j], j) < (tickets[i], i):
 				pass
 	    
-	def critical_section(self):
+	def critical_region(self):
 		self.print_document()
 
 	def release(self, i):
@@ -54,7 +54,7 @@ class Printer(object):
 			print('O documento {} está na fila...'.format(threading.get_ident()))
 			id = self.get_id()
 			self.acquire(id)
-			self.critical_section()
+			self.critical_region()
 			self.release(id)
 			doc_count -= 1
 
@@ -81,11 +81,13 @@ def main():
 		name = 'D' + str(i)
 		doc = Printer(name)
 		docs.append(doc)
+
 	with socket.socket() as s: 
 		s.connect(('', 50007))
 		while True:
 			io_list = [sys.stdin, s]
 			ready_to_read, ready_to_write, in_error = select.select(io_list , [], [])   
+
 			if s in ready_to_read: 
 				data = s.recv(1024)
 				id = univ_count % 10
