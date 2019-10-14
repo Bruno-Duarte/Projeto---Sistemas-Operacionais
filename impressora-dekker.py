@@ -49,7 +49,7 @@ class Printer(object):
 		flag[self.get_this()] = False
 
 	def handle_server(self, data):
-		if not data: # ex: caso o servidor se desligue, ou conexao perdida
+		if not data: 
 			return
 		elif data == b'print':
 			global doc_count
@@ -80,19 +80,13 @@ def main():
 	global univ_count
 	d1 = Printer('D1')
 	d2 = Printer('D2')
-	with socket.socket() as s: # por default ja abre socket AF_INET e TCP (SOCK_STREAM)
+	with socket.socket() as s: 
 		s.connect(('', 50007))
 		while True:
 			io_list = [sys.stdin, s]
-			ready_to_read, ready_to_write, in_error = select.select(io_list , [], [])   # visto que as funcoes input e 
-                                                                                      # recv sao 'bloqueadoras' da 
-                                                                                      # execucao do codigo seguinte 
-                                                                                      # temos de 'seguir' ambos os 
-                                                                                      # eventos desta maneira
-
-			if s in ready_to_read: # caso haja dados a chegar
+			ready_to_read, ready_to_write, in_error = select.select(io_list , [], [])  
+			if s in ready_to_read:
 				data = s.recv(1024)
-
 				id = univ_count % 2
 				univ_count += 1
 				if univ_count == MAX_UNIV_COUNT:
