@@ -10,7 +10,7 @@ univ_count = 0
 
 buffer = queue.Queue(BUFFER_SIZE)
 
-want_status = [False, False]
+interested = [False, False]
 turn = None
 
 class Printer(object):
@@ -32,29 +32,29 @@ class Printer(object):
 	def get_other(self):
 		return self.__other
 
-	def pre_protocol(self):
-		want_status[self.get_this()] = True
+	def enter_region(self):
+		interested[self.get_this()] = True
 		turn = self.get_other()
 		while True:
-			if not want_status[self.get_other()] or turn == self.get_this():
+			if not interested[self.get_other()] or turn == self.get_this():
 				break
 	    
-	def critical_section(self):
+	def critical_region(self):
 		self.print_document()
 
-	def post_protocol(self):
-		want_status[self.get_this()] = False
+	def leave_region(self):
+		interested[self.get_this()] = False
 
 	def handle_server(self, data):
-		if not data:
+		if not data: 
 			return
 		elif data == b'print':
 			global doc_count
 			doc_count += 1
 			print('O documento {} está na fila...'.format(threading.get_ident()))
-			self.pre_protocol()
-			self.critical_section()
-			self.post_protocol()
+			self.enter_region()
+			self.critical_region()
+			self.leave_region()
 			doc_count -= 1
 
 	def print_document(self):
@@ -81,7 +81,7 @@ def main():
 		s.connect(('', 50007))
 		while True:
 			io_list = [sys.stdin, s]
-			ready_to_read, ready_to_write, in_error = select.select(io_list , [], [])   
+			ready_to_read, ready_to_write, in_error = select.select(io_list , [], [])  
 			if s in ready_to_read: 
 				data = s.recv(1024)
 				id = univ_count % 2
