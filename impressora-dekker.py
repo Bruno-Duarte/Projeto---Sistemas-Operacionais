@@ -10,7 +10,7 @@ univ_count = 0
 
 buffer = queue.Queue(BUFFER_SIZE)
 
-want_status = [False, False]
+flag = [False, False]
 turn = 0
 
 class Printer(object):
@@ -32,32 +32,32 @@ class Printer(object):
 	def get_other(self):
 		return self.__other
 
-	def pre_protocol(self):
-		want_status[self.get_this()] = True
-		while want_status[self.get_other()]:
+	def enter_region(self):
+		flag[self.get_this()] = True
+		while flag[self.get_other()]:
 			if turn == self.get_other():
-				want_status[self.get_this()] = False
-				while want_status[self.get_other()]:
+				flag[self.get_this()] = False
+				while flag[self.get_other()]:
 					pass
-				want_status[self.get_this()] = True
+				flag[self.get_this()] = True
 	    
-	def critical_section(self):
+	def critical_region(self):
 		self.print_document()
 
-	def post_protocol(self):
+	def leave_region(self):
 		turn = self.get_other()
-		want_status[self.get_this()] = False
+		flag[self.get_this()] = False
 
 	def handle_server(self, data):
-		if not data: 
+		if not data: # ex: caso o servidor se desligue, ou conexao perdida
 			return
 		elif data == b'print':
 			global doc_count
 			doc_count += 1
 			print('O documento {} está na fila...'.format(threading.get_ident()))
-			self.pre_protocol()
-			self.critical_section()
-			self.post_protocol()
+			self.enter_region()
+			self.critical_region()
+			self.leave_region()
 			doc_count -= 1
 
 	def print_document(self):
@@ -74,19 +74,25 @@ class Printer(object):
 			item.join()
 			buffer.task_done()
 
-			
+
 def main():
 	global doc_count
 	global univ_count
 	d1 = Printer('D1')
 	d2 = Printer('D2')
-	with socket.socket() as s: 
+	with socket.socket() as s: # por default ja abre socket AF_INET e TCP (SOCK_STREAM)
 		s.connect(('', 50007))
 		while True:
 			io_list = [sys.stdin, s]
-			ready_to_read, ready_to_write, in_error = select.select(io_list , [], [])   
-			if s in ready_to_read: 
+			ready_to_read, ready_to_write, in_error = select.select(io_list , [], [])   # visto que as funcoes input e 
+                                                                                      # recv sao 'bloqueadoras' da 
+                                                                                      # execucao do codigo seguinte 
+                                                                                      # temos de 'seguir' ambos os 
+                                                                                      # eventos desta maneira
+
+			if s in ready_to_read: # caso haja dados a chegar
 				data = s.recv(1024)
+
 				id = univ_count % 2
 				univ_count += 1
 				if univ_count == MAX_UNIV_COUNT:
