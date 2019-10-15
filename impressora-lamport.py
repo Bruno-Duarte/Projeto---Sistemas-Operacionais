@@ -88,15 +88,16 @@ def main():
 			ready_to_read, ready_to_write, in_error = select.select(io_list , [], [])   
 			if s in ready_to_read: 
 				data = s.recv(1024)
-				id = univ_count % 10
+				id = univ_count % BUFFER_SIZE
 				univ_count += 1
 				if univ_count == MAX_UNIV_COUNT:
 					univ_count = 0
 				docs[id].set_id(id)
 				thread = threading.Thread(target=docs[id].handle_server, args=(data, ))
-				if doc_count <= BUFFER_SIZE - 1:
+				if univ_count % BUFFER_SIZE != 0 and doc_count <= BUFFER_SIZE:
 					buffer.put(thread)
 				else:
+					doc_count = 10
 					print('Buffer cheio!')
 				for i in range(BUFFER_SIZE):
 					threading.Thread(target=docs[i].run, args=(buffer, )).start()
