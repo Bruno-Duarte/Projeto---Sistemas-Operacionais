@@ -1,8 +1,7 @@
 import socket, select, sys
 
-def menu():
-	print('1. Imprimir')
-	print('2. Sair\n')
+from menus import main_menu, draw_line
+
 
 class Client(object):
 
@@ -11,30 +10,36 @@ class Client(object):
 
 	def connect(self):
 		with socket.socket() as s: 
-		    s.connect(('', 50007))
-		    menu()
-		    while True:
-		        io_list = [sys.stdin, s]
-		        ready_to_read, ready_to_write, in_error = select.select(io_list , [], [])   
-		        if s in ready_to_read:
-		            data = s.recv(1024)
-		            if not data:
-		                break
-		            print(data.decode())
-		        else:
-		        	msg = sys.stdin.readline()
-		        	try:
-		        		msg = int(msg)
-		        		if msg == 1:
-			        		s.send('request\n'.encode())
-			        		sys.stdout.flush()
-			        	elif msg == 2:
-			        		break
-			        	else:
-			        		print('Comando inválido')
-		        	except Exception as erro:
-		        		print(erro)
+			s.connect(('', 50007))
+			while True:
+				main_menu()
+				io_list = [sys.stdin, s]
+				ready_to_read, ready_to_write, in_error = select.select(io_list , [], [])   
+				if s in ready_to_read:
+					data = s.recv(1024)
+					if not data:
+						break
+					print(data.decode())
+				else:
+					option = sys.stdin.readline()
+					try:
+						option = int(option)
+						if option == 1:
+							s.send('client    request   \n'.encode())
+							sys.stdout.flush()
+						elif option == 2:
+							draw_line()
+							break
+						else:
+							draw_line()
+							print('Opção inválida!')
+					except Exception as erro:
+						print(erro)
+						
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	client = Client('Cliente')
-	client.connect()
+	try:
+		client.connect()
+	except ConnectionRefusedError:
+		print('Server não encontrado, execute o arquivo "servidor.py"')
