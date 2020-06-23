@@ -1,4 +1,4 @@
-#### Simulação de Espera Ocupada para a Disciplina de Sistemas Operacionais (UECE/2019) ####
+## Simulação de Espera Ocupada para a Disciplina de Sistemas Operacionais (UECE/2019) ##
 
 Esse é o projeto final para a disciplina de Sistemas Operacionais do curso de Ciência da Computação 
 da Universidade Estadual do Ceará (UECE), semestre 2019.1. O objetivo é apresentar um problema de 
