@@ -26,7 +26,7 @@ Para fazer alterações no projeto:
 
 ```
 cd "diretorio de sua preferência"
-git https://github.com/Bruno-Duarte/Projeto-Sistemas-Operacionais.git
+git clone https://github.com/Bruno-Duarte/Projeto-Sistemas-Operacionais.git
 ```
 
 ## Execução
