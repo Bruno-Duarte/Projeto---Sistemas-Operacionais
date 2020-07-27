@@ -1,6 +1,6 @@
 import socket, select, sys
 
-from menus import main_menu, draw_line
+from src.interface.menus import main_menu, draw_line
 
 
 class Client(object):
@@ -42,4 +42,5 @@ if __name__ == '__main__':
 	try:
 		client.connect()
 	except ConnectionRefusedError:
-		print('Server não encontrado, execute o arquivo "servidor.py"')
+		print('Servidor não encontrado, execute o arquivo "servidor.py"')
+		

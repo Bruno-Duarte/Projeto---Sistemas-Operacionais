@@ -2,11 +2,11 @@ import socket, select, sys, threading, queue
 from time import sleep
 from random import randint as rand
 
-from dekker import Dekker
-from peterson import Peterson
-from lamport import Lamport
+from src.classes.dekker import Dekker
+from src.classes.peterson import Peterson
+from src.classes.lamport import Lamport
 
-from menus import secondary_menu, draw_line
+from src.interface.menus import secondary_menu, draw_line
 
 BUFFER_SIZE = 2
 

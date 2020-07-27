@@ -9,7 +9,7 @@ impressão.
 
 ## Features
 
-- faz a utilização do conceito de comunicação entre processos
+- utiliza o conceito de comunicação entre processos
 - trabalha o uso de threads
 - promove o uso de POO
 - utiliza padrão de projeto

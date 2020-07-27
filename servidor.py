@@ -25,7 +25,8 @@ class Server(object):
 							conn = self.find_printer()
 							conn.send(b'print')
 						else:
-							msg = 'Não há impressora disponível, execute "impressora.py"'.encode('utf-8')
+							msg = 'Não há nenhuma impressora disponível, execute "impressora.py\ne escolha o algoritmo."'\
+							.encode('utf-8')
 							connections[client_conn.getpeername()[1]][0].send(msg)
 					else:
 						print('Não reconhecido!')
